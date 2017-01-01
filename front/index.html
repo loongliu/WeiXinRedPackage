@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <meta http-equiv="expires" content="mon, 27 sep 2020 14:30:00 GMT">
+        <title>跨年红包</title>
+        <link rel="stylesheet" href="sss.css">
+        <link rel="prefetch" href="bg.jpg">
+        <link rel="prefetch" href="bg2.jpg">
+
+        <script>
+        var counter = 0;
+        var elementPrepare;
+        var elementFire;
+        var elementFinish;
+        var elementProgress;
+        var elementIntroButton;
+        var elementIntro;
+        var showTextView;
+        var elementRocket;
+        var elementPro;
+        var randint = Math.floor( Math.random() * 2) + 4; // 20-40 random int
+        var countDownTime;
+        var needStart = false;
+
+        var STATE_INTRO = 1;
+        var STATE_PREPARE = 2;
+        var STATE_FIRE = 3;
+        var STATE_FINISH = 4;
+
+        var curState = STATE_INTRO;
+
+        function changeState(state){
+            elementPrepare.style.display = "none";
+            elementFire.style.display = "none";
+            elementProgress.style.display = "none";
+            elementIntro.style.display = "none";
+            elementFinish.style.display = "none";
+            curState = state;
+            if (state === STATE_INTRO){
+                elementIntro.style.display = "block";
+            }else if (state === STATE_PREPARE){
+                elementPrepare.style.display = "block";
+            }else if (state === STATE_FINISH){
+                elementFinish.style.display = "block";
+            }else if (state === STATE_FIRE){
+                elementFire.style.display = "block";
+                elementProgress.style.display = "block";
+                document.getElementById("bg").src="bg.jpg"
+            }
+        }
+
+
+
+        function timeString(time){
+            var minute = Math.floor(time / 60);
+            var second = time % 60;
+            var str = second + "秒";
+            if(minute != 0){
+                str = minute + "分钟" + str;
+            }
+            return str;
+        }
+
+        function countDown(){
+            elementCountDown.innerHTML = "倒计时:"+timeString(countDownTime)+"<br />深呼吸<br />准备好给我一个热烈的拥抱！"
+            countDownTime = countDownTime-1;
+            if(countDownTime <= 0){
+                changeState(STATE_FIRE)
+                return;
+            }
+            t=setTimeout("countDown()",1000)
+        }
+
+
+
+
+        function ready(){
+            console.log("ready");
+            elementPrepare = document.getElementById("red_total_notstart");
+            elementFire = document.getElementById("red_total");
+            elementFinish = document.getElementById("red_total_finish");
+            elementProgress = document.getElementById("red_progress");
+            elementRocket = document.getElementById("rocket");
+            elementPro = document.getElementById("pro");
+            elementIntro = document.getElementById('red_intro');
+            elementIntroButton = document.getElementById('button_first');
+            elementSleeoping = document.getElementById('not_start_sleeping');
+            elementComing = document.getElementById('not_start_coming');
+            elementCountDown = document.getElementById('coundownText');
+
+            var clickButton = document.getElementById("red_click");
+             function touchHandler(e) {
+              console.log("red_click");
+                counter+=1;
+                console.log(counter, randint);
+                var strper = Math.floor(counter *100/randint)+'%'
+                console.log(strper)
+                elementRocket.style.marginLeft = strper;
+                elementPro.style.width = strper;
+                var red_total = document.getElementById('red_total');
+                red_total.preventDefault;
+                red_total.classList.remove("shake");
+                red_total.offsetWidth = red_total.offsetWidth;
+                red_total.classList.add("shake");
+                if(counter >= randint ){
+                    fire();
+                    clickButton.removeEventListener("touchstart", touchHandler, false);
+                }
+            }
+            clickButton.addEventListener("touchstart", touchHandler, false);
+
+
+
+            var theUrl = "http://your.company.com:19000/time";
+            var xmlHttp = new XMLHttpRequest();xmlHttp.onreadystatechange = function() {
+                if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+                    string_res = xmlHttp.responseText;
+                    var obj = JSON.parse(string_res);
+                    if(obj.flag == 2){
+                        elementSleeoping.style.display = 'block';
+                        if(obj.turn>1){
+                            document.getElementById("sleepingText").innerHTML = "本轮红包已经结束<br /> 下一轮再来试试！"
+                        }
+                    }else if (obj.flag == 1){
+                        elementSleeoping.style.display = 'none';
+                        elementComing.style.display = 'block'
+                        countDownTime = Math.floor(obj['time']);
+                        countDown();
+                    }else if(obj.flag == 0){
+                        if(curState === STATE_PREPARE){
+                            changeState(STATE_FIRE)
+                        }else{
+                            needStart = true;
+                        }
+                    }
+                }
+                
+            };
+            xmlHttp.open("GET", theUrl, true); // true for asynchronous
+            xmlHttp.send(null);
+            elementIntroButton.onclick = function() {
+                elementIntro.style.display = 'none';
+                elementPrepare.style.display = 'block';
+                if(needStart){
+                    changeState(STATE_FIRE)
+                }else{
+                    changeState(STATE_PREPARE)
+                }
+            }
+        }
+
+
+        function getRequest() {
+            var url = location.search; 
+            var theRequest = new Object();
+            if (url.indexOf("?") != -1) {
+                var str = url.substr(1);
+                strs = str.split("&");
+                for(var i = 0; i < strs.length; i ++) {
+                    theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                }
+            }
+            return theRequest;
+        }
+        function fire() {
+            var Request = new Object();
+            Request = getRequest();
+            var code, state;
+            code = Request['code'];
+            state = Request['state'];
+            var theUrl = "http://your.company.com:18000/red?code="+code;
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.onreadystatechange = function() {
+                if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+                    
+                    string_res = xmlHttp.responseText;
+                    response = JSON.parse(string_res);
+                    document.getElementById("progress").style.display = 'none';
+                    var text;
+                    if(response.code == -1){
+                        document.getElementById("no_package").style.display = 'block';
+                    }else if(response.code == 0){
+                        text = response.amount+'元';
+                        document.getElementById("get_package").style.display = 'block';
+                        document.getElementById("money").innerHTML = text;
+                    }
+                    
+                }
+                
+            };
+            xmlHttp.open("GET", theUrl, true); // true for asynchronous
+            xmlHttp.send(null);
+            red_total.style.webkitAnimationPlayState = 'paused';
+            changeState(STATE_FINISH);
+        }
+    </script>
+
+    </head>
+
+    <body >
+        <img id="bg" src="bg2.jpg" style="width: 100%; top:0;   height: auto; position:absolute;" >
+
+
+
+        <div id="red_progress" class="progress" style="display:none">
+            <div id = "pro" style="width: 0%;   height: 100%; background: rgb(240, 151, 59); position:absolute; " ></div>
+            <img id="rocket" src="rocket.png" style="width: auto; height: 100%; margin-left:0%; position:absolute; ">
+        </div>
+
+
+        <div id="red_total" class="red_outer" style="display:none" >
+            <img src="red1.png" class="red_back"   />
+            <img src="redB.png" id="red_click"  >
+        </div>
+
+
+        <div id="red_total_finish" class="red_outer" style="display:none;"   >
+            <img src="red2.png" class="red_back" style=""  />
+            <div id="progress">
+                <img src="loading.png" class="loading_animaion" >
+                <div style="    color: rgb(240, 151, 59); width: 80%; height: auto;  left: 10%;  right: 10%;     text-align: center;    font-size: 10px;  top: 83%; position:absolute;" >网速不太给力，请耐心等待</div>
+            </div>
+            <div id="get_package"  style="display:none"  >
+                
+                <div id="money" style="    width: 80%; height: auto;  left: 10%;  right: 10%;     text-align: center;    font-size: 25px;  top: 85%; position:absolute;" ></div>
+                <div style="    color: rgb(240, 151, 59); width: 80%; height: auto;  left: 10%;  right: 10%;     text-align: center;    font-size: 10px;  top: 103%; position:absolute;" >请前往公共号领取</div>
+            </div>
+            <div id="no_package" style="display:none"   >
+                <img src="no_package.png" style="   width: 30%;     height: auto;    left: 35%;    right: 35%;    top: 83%;    position:absolute;" />
+            </div>
+        </div>
+
+        <div id="red_total_notstart"  style="width: 100%; top:0;   height: 100%; position:absolute; display:none;"   >
+            <div id="not_start_sleeping" style= "width: 100%; top:0;   height: 100%; position:absolute; "> 
+                <img src="package_sleep.png" style = "width: 80%; height: auto;margin: 20% 10% 0% 10%;" >
+                <div  id="sleepingText" style="    color: rgb(240, 151, 59);  width: 100%; height: auto; margin-top: 10%; text-align: center;  font-size: 20px;">红包还在睡觉<br />一会儿再来试试！</div>
+            </div> 
+            <div id="not_start_coming" style= "width: 100%; top:0;   height: 100%; position:absolute; display:none; "> 
+                <img src="countdown.png" style = "width: 80%; height: auto;margin: 20% 10% 0% 10%;" >
+                <div id="coundownText"  style="    color: rgb(240, 151, 59);  width: 100%; height: auto; margin-top: 10%; text-align: center;  font-size: 20px;"></div>
+            </div>
+
+            </div>
+        </div>
+
+        <div id="red_intro" style="width: 100%; top:0;   height: 100%; position:absolute; ">
+            <img src="text_first.png" style = "width: 60%; height: auto;margin: 45% 20% 0% 20%;">
+            <img src="button_first.png" id="button_first" style = "width: 50%; height: auto;margin: 10% 25% 30% 25%;">
+        </div>
+
+            <script>
+            ready()
+            </script>
+    </body>
+
+    
+</html>

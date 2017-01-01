@@ -1,0 +1,105 @@
+body,html{
+    margin:0;
+    height:100%;
+    width: 100%;
+}
+
+
+.red_outer {
+	width: auto;
+	height: auto; 
+	left:15%; 
+	right:15%;
+	top:22%;
+	bottom:25%;
+	position:absolute;
+}
+
+
+.progress {
+	background: rgb(112, 23, 25);
+	height: 4%; 
+	width: auto;
+	right:15%;
+	left: 15%;
+	top: 15%;
+	bottom:25%;
+	position:absolute;
+}
+
+.red_back  {
+	max-width: 100%;
+	width: 100%;
+	position:absolute;
+}
+
+#red_click {
+	width: 27%; 
+	height: auto;  
+	margin-left:36.5%;
+	margin-right: 36.5%;
+	margin-top: 85%;
+	position:absolute;
+}
+
+
+
+#red_amout {
+	width: 100%;
+	height: auto;
+	top:80%;
+	position:absolute;
+	text-align: center;
+	font-size: 25px;
+}
+
+.intro_text{
+	color: rgb(240, 151, 59);
+	width: 100%; 
+	height: auto;  
+	top:40%;
+	position:absolute;
+	text-align: center;
+	font-size: 25px;
+}
+
+
+
+.shake { -webkit-animation-name: cssAnimation;
+-webkit-animation-duration:1s;
+-webkit-animation-iteration-count: 1;
+-webkit-animation-timing-function: ease;
+-webkit-animation-fill-mode: forwards;
+}
+
+
+@-webkit-keyframes cssAnimation {
+
+	0%   {-webkit-transform: rotate(0deg)}
+	10%  {-webkit-transform: rotate(8deg)}
+	25%  {-webkit-transform: rotate(-8deg)}
+	50%  {-webkit-transform: rotate(8deg)}
+	100% {-webkit-transform: rotate(0deg)}
+}
+
+.loading_animaion{
+	width: 20%; 
+	height: auto;
+	left: 40%;
+	right: 40%;
+	top: 63%;
+	position:absolute;
+	-webkit-animation-name:             loading; 
+    -webkit-animation-duration:         1s; 
+    -webkit-animation-iteration-count:  infinite;
+    -webkit-animation-timing-function: linear;
+}
+
+@-webkit-keyframes loading {
+  from {
+    -webkit-transform: rotate(0deg);
+  }
+  to { 
+    -webkit-transform: rotate(360deg);
+  }
+}
